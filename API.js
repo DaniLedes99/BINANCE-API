@@ -6,17 +6,28 @@ const limit = 1000;
 // Construir la URL con los parámetros
 const url = `${endpoint}?symbol=${symbol}&interval=${interval}&limit=${limit}`;
 
-fetch(url)
-  .then((response) => {
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-    return response.json();
-  })
-  .then((data) => mostrarData(data))
-  .catch((error) => console.error("Error fetching data:", error));
+export const fetchBinance = (callback = (() => {})) => {
+  fetch(url)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      callback(response.json());
+    })
+    .catch((error) => console.error("Error fetching data:", error));
+} 
 
-const mostrarData = (data) => {
+export const fetchBinanceWithAwait = async (callback = (() => {})) => {
+  try{
+    const response = await fetch(url);
+    callback(response.json());
+    return response;
+  } catch(e) {
+    console.log(e);
+  }
+}
+
+export const mostrarData = (data) => {
   let labels = []; // Día
   let valores = []; // Cierre del día
   for (let i = 0; i < data.length; i++) {
@@ -27,3 +38,13 @@ const mostrarData = (data) => {
   }
   return { labels, valores };
 };
+
+
+
+const papitas =  [{a: 1, b: 2}, {a: 3, b: 4}, {a: 5, b: 6}, {a: 7, b: 8}];
+
+const parsearPapitas = () => {
+    return papitas.map(papita => {
+      return papita.a + papita.b;
+    })
+}
