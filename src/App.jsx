@@ -1,40 +1,50 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
-import { fetchBinance, mostrarData } from "../API";
+import { binanceFetch, mostrarData } from "./API";
 
 function App() {
+  const [valuesCont, setValuesCont] = useState({ valuesBTC: [], days: [] });
 
-    const [valuesCont, setValuesCont] = useState({valores: [], labels: []});
-    const [indexLabel, setIndexLabel]=useState([])
+  //HANDLES
+  const hoy = new Date();
+  const FormatDays = (array = []) => {
+    const formattedDates = array.map((_, i) => {
+      const fecha = new Date(hoy);
+      fecha.setDate(hoy.getDate() - array.length + i + 1);
 
+      const dia = fecha.getDate();
+      const mes = fecha.getMonth() + 1;
+      const año = fecha.getFullYear();
 
-    //HANDLES
-    const saveToValuesCont = (unParsedArray = []) => {
-        setValuesCont(mostrarData(unParsedArray));
-    }
+      return `${dia}/${mes}/${año}`;
+    });
+    return formattedDates;
+  };
 
-    const getValuesByKey = (key = "labels") => {
-        return valuesCont[key] || [];
-    }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await binanceFetch();
+        const formattedData = mostrarData(data);
+        // el spread sirve para copiar todas las propiedades del estado anterior (valuesBTC) y luego sobrescribir valuesBTC y days con las nuevas actualizaciones
+        setValuesCont((prevValue) => ({
+          ...prevValue,
+          valuesBTC: formattedData.valuesBTC,
+          days: FormatDays(formattedData.days),
+        }));
+        console.log(valuesCont);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, []);
 
-    const getByIndex = (index = 0, key = "labels", defaultValue = 0) => {
-        return getValuesByKey(key)[index] || defaultValue;
-    }
-    
-    const getFirst = (key = "labels", defaultValue = 0) => {
-        // return valuesCont[key][0] || defaultValue;
-        return getByIndex(0, key, defaultValue);   
-    }
+  const getValuesByKey = async (key = "days") => {
+    return (await valuesCont[key]) || [];
+  };
 
-    const getParsedLabel = (index = 37) => {
-        const value = getFirst("labels", 0);
-        return value + 2;
-    }
-
-
-    fetchBinance(saveToValuesCont);
-
-    return <></>;
+  return <></>;
 }
 
 export default App;
