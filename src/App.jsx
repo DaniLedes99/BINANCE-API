@@ -3,7 +3,7 @@ import "./App.css";
 import { binanceFetch, mostrarData } from "./API";
 
 function App() {
-  const [valuesCont, setValuesCont] = useState({ valuesBTC: [], days: [] });
+  const [valuesCont, setValuesCont] = useState({ valuesBTC: [], dateBTC: [] });
   const [height, setHeight] = useState("");
   const [width, setWidth] = useState("");
 
@@ -14,11 +14,14 @@ function App() {
       return null;
     } else {
       const max = Math.max(...valuesCont.valuesBTC);
+      console.log(max);
       return max;
     }
   };
 
-  const FormatDays = (array = []) => {
+  getHigherValue();
+
+  const Formatdays = (array = []) => {
     const formattedDates = array.map((_, i) => {
       const fecha = new Date();
       fecha.setDate(fecha.getDate() - array.length + i + 1);
@@ -29,19 +32,29 @@ function App() {
     return formattedDates;
   };
 
+  const FormatHours = (array = []) => {
+    const formattedHours = array.map((_, i) => {
+      const date = new Date();
+      date.setHours(date.getHours() - array.length + 1 + i);
+      return `${date.getDate()}/${date.getMonth() + 1} - ${date.getHours()}:00`;
+    });
+    return formattedHours;
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await binanceFetch();
         const formattedData = mostrarData(data);
-        // el spread sirve para copiar todas las propiedades del estado anterior (valuesBTC) y luego sobrescribir valuesBTC y days con las nuevas actualizaciones
+        console.log(formattedData);
+        // el spread sirve para copiar todas las propiedades del estado anterior (valuesBTC) y luego sobrescribir valuesBTC y date con las nuevas actualizaciones
         setValuesCont((prevValue) => ({
           ...prevValue,
           valuesBTC: formattedData.valuesBTC,
-          days: FormatDays(formattedData.days),
+          dateBTC: FormatHours(formattedData.dateBTC),
         }));
-        console.log(valuesCont);
-        setHeight("800");
+        console.log(valuesCont.dateBTC);
+        setHeight("600");
         setWidth("1800");
         drawAxis();
       } catch (error) {
@@ -52,8 +65,7 @@ function App() {
   }, []);
 
   const transformDataToGraphic = (valueToTransform) => {
-    const value = (valueToTransform * height) / 120000000 - 10;
-    console.log(value);
+    const value = (valueToTransform * height) / 110000000 + 30;
     return value;
   };
 
@@ -77,12 +89,15 @@ function App() {
     const canvas = document.getElementById("canvas");
     if (canvas) {
       const ctx = canvas.getContext("2d");
-      for (let i = 0; i < valuesCont.days.length; i++) {
+      for (let i = 0; i < valuesCont.dateBTC.length; i++) {
         ctx.beginPath();
-        ctx.moveTo(i * 10, transformDataToGraphic(valuesCont.valuesBTC[i]));
+        ctx.moveTo(
+          i * 5,
+          height - transformDataToGraphic(valuesCont.valuesBTC[i] * 1.3)
+        );
         ctx.lineTo(
-          (i + 1) * 10,
-          transformDataToGraphic(valuesCont.valuesBTC[i + 1])
+          (i + 1) * 5,
+          height - transformDataToGraphic(valuesCont.valuesBTC[i + 1] * 1.3)
         );
         ctx.stroke();
       }
@@ -90,7 +105,7 @@ function App() {
   }
   drawAxis();
   drawBTC();
-  console.log(transformDataToGraphic(valuesCont.valuesBTC[0]));
+  /*  console.log(transformDataToGraphic(valuesCont.valuesBTC[0])); */
   return (
     <>
       <h1>Cotizaciones Cripto</h1>

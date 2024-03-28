@@ -1,7 +1,7 @@
 const endpoint = "https://api.binance.com/api/v3/klines";
 const symbol = "BTCARS";
 const interval = "1d";
-const limit = 500;
+const limit = 120;
 
 const url = `${endpoint}?symbol=${symbol}&interval=${interval}&limit=${limit}`;
 
@@ -18,13 +18,13 @@ export const binanceFetch = async () => {
 };
 
 export const mostrarData = (data) => {
-  let days = []; // Día
+  let dateBTC = []; // Día
   let valuesBTC = []; // Cierre del día
   for (let i = 0; i < data.length; i++) {
     const cierre_del_dia = data[i][4];
     const dia = data[i][0];
-    days.push(dia);
+    dateBTC.push(dia);
     valuesBTC.push(cierre_del_dia);
   }
-  return { valuesBTC, days };
+  return { valuesBTC, dateBTC };
 };
