@@ -1,13 +1,19 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import { binanceFetch, mostrarData } from "./API";
+import { FormatHours, Formatdays } from "./FormatDates";
+import { transformDataToGraphic } from "./grafico";
 
 function App() {
   const [valuesCont, setValuesCont] = useState({ valuesBTC: [], dateBTC: [] });
   const [height, setHeight] = useState("");
   const [width, setWidth] = useState("");
-
+  const [symbol, setSymbol] = useState("BTCARS");
+  const [interval, setInterval] = useState("1d");
+  const [limit, setLimit] = useState(120);
   const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
+
+  //HANDLES
 
   const handleMouseMove = (event) => {
     const rect = event.target.getBoundingClientRect();
@@ -24,7 +30,7 @@ function App() {
       const error_admitido = 3;
       if (Math.abs(x - dataX) < error_admitido) {
         foundX = valuesCont.dateBTC[i + 1];
-        foundY = dataY;
+        foundY = Math.round(valuesCont.valuesBTC[i + 1]);
         break;
       }
     }
@@ -40,38 +46,8 @@ function App() {
     setMouseCoords({ x: 0, y: 0 });
   };
 
-  //HANDLES
-
-  const getHigherValue = () => {
-    if (valuesCont.valuesBTC.length === 0) {
-      return null;
-    } else {
-      const max = Math.max(...valuesCont.valuesBTC);
-      console.log(max);
-      return max;
-    }
-  };
-
-  getHigherValue();
-
-  const Formatdays = (array = []) => {
-    const formattedDates = array.map((_, i) => {
-      const fecha = new Date();
-      fecha.setDate(fecha.getDate() - array.length + i + 1);
-      return `${fecha.getDate()}/${
-        fecha.getMonth() + 1
-      }/${fecha.getFullYear()}`;
-    });
-    return formattedDates;
-  };
-
-  const FormatHours = (array = []) => {
-    const formattedHours = array.map((_, i) => {
-      const date = new Date();
-      date.setHours(date.getHours() - array.length + 1 + i);
-      return `${date.getDate()}/${date.getMonth() + 1} - ${date.getHours()}:00`;
-    });
-    return formattedHours;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
   };
 
   useEffect(() => {
@@ -84,12 +60,11 @@ function App() {
         setValuesCont((prevValue) => ({
           ...prevValue,
           valuesBTC: formattedData.valuesBTC,
-          dateBTC: FormatHours(formattedData.dateBTC),
+          dateBTC: Formatdays(formattedData.dateBTC),
         }));
         console.log(valuesCont.dateBTC);
         setHeight("600");
         setWidth("1800");
-        drawAxis();
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -97,21 +72,13 @@ function App() {
     fetchData();
   }, []);
 
-  const transformDataToGraphic = (valueToTransform) => {
-    const value = (valueToTransform * height) / 100000000 - 200;
-    console.log(value);
-    return value;
-  };
-
-  /*   console.log(getFirstValue());
-  console.log(getHigherValue()); */
-
   function drawAxis() {
     const canvas = document.getElementById("canvas");
     if (canvas) {
       const ctx = canvas.getContext("2d");
       //Ejes x e y
       ctx.beginPath();
+      ctx.strokeStyle = "black";
       ctx.moveTo(0, 0);
       ctx.lineTo(0, height);
       ctx.lineTo(width, height);
@@ -125,13 +92,20 @@ function App() {
       const ctx = canvas.getContext("2d");
       for (let i = 0; i < valuesCont.dateBTC.length; i++) {
         ctx.beginPath();
+        // Si el valor actual es mayor que el anterior, dibuja en verde
+        if (valuesCont.valuesBTC[i] < valuesCont.valuesBTC[i + 1]) {
+          ctx.strokeStyle = "green";
+        } else {
+          // Si el valor actual es menor que el anterior, dibuja en rojo
+          ctx.strokeStyle = "red";
+        }
         ctx.moveTo(
           i * 5,
-          height - transformDataToGraphic(valuesCont.valuesBTC[i] * 1.3)
+          height - transformDataToGraphic(valuesCont.valuesBTC[i], height)
         );
         ctx.lineTo(
           (i + 1) * 5,
-          height - transformDataToGraphic(valuesCont.valuesBTC[i + 1] * 1.3)
+          height - transformDataToGraphic(valuesCont.valuesBTC[i + 1], height)
         );
         ctx.stroke();
       }
@@ -139,11 +113,39 @@ function App() {
   }
   drawAxis();
   drawBTC();
-  /*  console.log(transformDataToGraphic(valuesCont.valuesBTC[0])); */
+
   return (
     <>
       <h1>Cotizaciones Cripto</h1>
       <br />
+      <form onSubmit={handleSubmit}>
+        <label>
+          Symbol:
+          <input
+            type="text"
+            value={symbol}
+            onChange={(e) => setSymbol(e.target.value)}
+          />
+        </label>
+        <label>
+          Interval:
+          <input
+            type="text"
+            value={interval}
+            onChange={(e) => setInterval(e.target.value)}
+          />
+        </label>
+        <label>
+          Limit:
+          <input
+            type="number"
+            value={limit}
+            onChange={(e) => setLimit(e.target.value)}
+          />
+        </label>
+        <button type="submit">Fetch Data</button>
+      </form>
+
       <canvas
         id="canvas"
         width={width}
@@ -151,9 +153,6 @@ function App() {
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       ></canvas>
-      <p>
-        Coordenadas del mouse: X: {mouseCoords.x}, Y: {mouseCoords.y}
-      </p>
       <p>
         Coordenadas del mouse: X: {mouseCoords.x}, Y: {mouseCoords.y}
       </p>

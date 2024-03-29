@@ -1,7 +1,7 @@
 const endpoint = "https://api.binance.com/api/v3/klines";
 const symbol = "BTCARS";
 const interval = "1d";
-const limit = 120;
+const limit = 200;
 
 const url = `${endpoint}?symbol=${symbol}&interval=${interval}&limit=${limit}`;
 
