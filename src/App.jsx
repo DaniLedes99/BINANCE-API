@@ -7,6 +7,39 @@ function App() {
   const [height, setHeight] = useState("");
   const [width, setWidth] = useState("");
 
+  const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (event) => {
+    const rect = event.target.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    /* const y = event.clientY - rect.top; */
+
+    let foundX = null;
+    let foundY = null;
+
+    for (let i = -1; i < valuesCont.dateBTC.length; i++) {
+      const dataX = (i + 1) * 5;
+      const dataY = valuesCont.valuesBTC[i + 1];
+
+      const error_admitido = 3;
+      if (Math.abs(x - dataX) < error_admitido) {
+        foundX = valuesCont.dateBTC[i + 1];
+        foundY = dataY;
+        break;
+      }
+    }
+
+    if (foundX !== null && foundY !== null) {
+      setMouseCoords({ x: foundX, y: foundY });
+    } else {
+      setMouseCoords({ x: 0, y: 0 });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setMouseCoords({ x: 0, y: 0 });
+  };
+
   //HANDLES
 
   const getHigherValue = () => {
@@ -65,7 +98,8 @@ function App() {
   }, []);
 
   const transformDataToGraphic = (valueToTransform) => {
-    const value = (valueToTransform * height) / 110000000 + 30;
+    const value = (valueToTransform * height) / 100000000 - 200;
+    console.log(value);
     return value;
   };
 
@@ -110,7 +144,19 @@ function App() {
     <>
       <h1>Cotizaciones Cripto</h1>
       <br />
-      <canvas id="canvas" width={width} height={height}></canvas>
+      <canvas
+        id="canvas"
+        width={width}
+        height={height}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+      ></canvas>
+      <p>
+        Coordenadas del mouse: X: {mouseCoords.x}, Y: {mouseCoords.y}
+      </p>
+      <p>
+        Coordenadas del mouse: X: {mouseCoords.x}, Y: {mouseCoords.y}
+      </p>
     </>
   );
 }
