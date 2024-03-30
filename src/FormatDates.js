@@ -1,7 +1,7 @@
-export const formatDays = (array = []) => {
+export const formatDays = (array = [], amount) => {
   const formattedDates = array.map((_, i) => {
     const fecha = new Date();
-    fecha.setDate(fecha.getDate() - array.length + i + 1);
+    fecha.setDate(fecha.getDate() - array.length + (i + 1) * amount);
     return `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()}`;
   });
   return formattedDates;
