@@ -10,7 +10,7 @@ function App() {
   const [width, setWidth] = useState("");
   const [inputs, setInputs] = useState({
     symbol: "BTCARS",
-    interval: "1d",
+    interval: "1h",
     limit: 200,
   });
   const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
@@ -25,7 +25,7 @@ function App() {
     setValuesCont((prevValue) => ({
       ...prevValue,
       valuesBTC: formattedData.valuesBTC,
-      dateBTC: formatDays(formattedData.dateBTC),
+      dateBTC: formatByTypeOfDate(formattedData.dateBTC),
     }));
   };
 
@@ -59,11 +59,29 @@ function App() {
       });
     };
   };
+  /*   const handleInputByType = (key) => (event) => {
+    setInputs({
+      ...inputs,
+      [key]: event.target.value,
+    });
+  }; */
+
+  const intervalFormatters = {
+    h: FormatHours,
+    d: formatDays,
+    /*   M: formatMonths,
+    w: formatWeeks, */
+  };
+
+  const formatByTypeOfDate = (array) => {
+    const intervalKey = inputs.interval.slice(-1); //devuelve el último valor del input
+    const formatFunction = intervalFormatters[intervalKey] || formatDays;
+    return formatFunction(array, inputs.interval[0]);
+  };
 
   const handleMouseMove = (event) => {
     const rect = event.target.getBoundingClientRect();
     const x = event.clientX - rect.left;
-    /* const y = event.clientY - rect.top; */
 
     let foundX = null;
     let foundY = null;
@@ -170,14 +188,7 @@ function App() {
             onChange={handleInputByType("symbol")}
           />
         </label>
-        <label>
-          Interval:
-          <input
-            type="text"
-            value={inputs.interval}
-            onChange={handleInputByType("interval")}
-          />
-        </label>
+
         <label>
           Interval:
           <select
@@ -187,7 +198,6 @@ function App() {
             <option value="1h">1h</option>
             <option value="4h">4h</option>
             <option value="1d">1d</option>
-            <option value="1w">1w</option>
           </select>
         </label>
         <label>

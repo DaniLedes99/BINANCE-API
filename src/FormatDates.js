@@ -7,16 +7,16 @@ export const formatDays = (array = []) => {
   return formattedDates;
 };
 
-export const FormatHours = (array = []) => {
+export const FormatHours = (array = [], amount) => {
   const formattedHours = array.map((_, i) => {
     const date = new Date();
-    date.setHours(date.getHours() - array.length + 1 + i);
+    date.setHours(date.getHours() - array.length + (1 + i) * amount);
     return `${date.getDate()}/${date.getMonth() + 1} - ${date.getHours()}:00`;
   });
   return formattedHours;
 };
 
-export const formatByType = (array, type) => {
-  //ESTA H ESTA MAL, SE TIENE QUE ARMAR UN ENUM
+/* export const formatByType = (array, type) => {
   return type === "h" ? FormatHours(array) : formatDays(array);
-}
+};
+ */
