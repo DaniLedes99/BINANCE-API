@@ -1,4 +1,4 @@
-export const Formatdays = (array = []) => {
+export const formatDays = (array = []) => {
   const formattedDates = array.map((_, i) => {
     const fecha = new Date();
     fecha.setDate(fecha.getDate() - array.length + i + 1);
@@ -15,3 +15,8 @@ export const FormatHours = (array = []) => {
   });
   return formattedHours;
 };
+
+export const formatByType = (array, type) => {
+  //ESTA H ESTA MAL, SE TIENE QUE ARMAR UN ENUM
+  return type === "h" ? FormatHours(array) : formatDays(array);
+}

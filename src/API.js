@@ -1,17 +1,22 @@
 const endpoint = "https://api.binance.com/api/v3/klines";
-const symbol = "BTCARS";
-const interval = "1d";
-const limit = 200;
+const defaultSymbol = "BTCARS";
+const defaultInterval = "1d";
+const defaultLimit = 200;
 
-const url = `${endpoint}?symbol=${symbol}&interval=${interval}&limit=${limit}`;
 
-export const binanceFetch = async () => {
+export const binanceFetch = async (callback = (() => {}), symbol = defaultSymbol, interval = defaultInterval, limit = defaultLimit) => {
+
+  const url = `${endpoint}?symbol=${symbol}&interval=${interval}&limit=${limit}`;
+  
   try {
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
-    return await response.json();
+    const parsedRes = await response.json();
+
+    callback(parsedRes);
+    return parsedRes;
   } catch (error) {
     return console.error("Error fetching data:", error);
   }

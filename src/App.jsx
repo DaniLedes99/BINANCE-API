@@ -1,19 +1,60 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import { binanceFetch, mostrarData } from "./API";
-import { FormatHours, Formatdays } from "./FormatDates";
+import { FormatHours, formatDays } from "./FormatDates";
 import { transformDataToGraphic } from "./grafico";
 
 function App() {
-  const [valuesCont, setValuesCont] = useState({ valuesBTC: [], dateBTC: [] });
-  const [height, setHeight] = useState("");
-  const [width, setWidth] = useState("");
-  const [symbol, setSymbol] = useState("BTCARS");
-  const [interval, setInterval] = useState("1d");
-  const [limit, setLimit] = useState(120);
-  const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
+    const [valuesCont, setValuesCont] = useState({ valuesBTC: [], dateBTC: [] });
+    const [height, setHeight] = useState("");
+    const [width, setWidth] = useState("");
+    const [inputs, setInputs] = useState({symbol: "BTCARS", interval: "1d", limit: 200});
+    const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
+
+    const saveRawData = (data) => {
+        const formattedData = mostrarData(data);
+
+        // el spread sirve para copiar todas las propiedades del estado anterior (valuesBTC) y luego sobrescribir valuesBTC y date con las nuevas actualizaciones
+
+        setValuesCont((prevValue) => ({
+            ...prevValue,
+            valuesBTC: formattedData.valuesBTC,
+            dateBTC: formatDays(formattedData.dateBTC),
+        }));
+    }   
+
+    const initGraphicsDimensions = () => {
+        setHeight("600");
+        setWidth("1800");
+    }
+
+    const fetchCallback = (parsedRes) => {
+        saveRawData(parsedRes); 
+        initGraphicsDimensions();
+    };
+
+    const binanceFetchByParameters = () => {
+        binanceFetch(fetchCallback, inputs.symbol, inputs.interval, inputs.limit);
+    }
 
   //HANDLES
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        
+        console.log(inputs);
+        binanceFetchByParameters();
+    };
+
+    const handleInputByType = (type) => {
+        return ({target}) => {
+            setInputs( inputs => {
+                return {
+                    ... inputs,
+                    [type]: target.value,
+                }
+            })
+      }
+    };
 
   const handleMouseMove = (event) => {
     const rect = event.target.getBoundingClientRect();
@@ -27,8 +68,8 @@ function App() {
       const dataX = (i + 1) * 5;
       const dataY = valuesCont.valuesBTC[i + 1];
 
-      const error_admitido = 3;
-      if (Math.abs(x - dataX) < error_admitido) {
+      const ERROR_ADMITIDO = 3;
+      if (Math.abs(x - dataX) < ERROR_ADMITIDO) {
         foundX = valuesCont.dateBTC[i + 1];
         foundY = Math.round(valuesCont.valuesBTC[i + 1]);
         break;
@@ -46,33 +87,16 @@ function App() {
     setMouseCoords({ x: 0, y: 0 });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await binanceFetch();
-        const formattedData = mostrarData(data);
-        console.log(formattedData);
-        // el spread sirve para copiar todas las propiedades del estado anterior (valuesBTC) y luego sobrescribir valuesBTC y date con las nuevas actualizaciones
-        setValuesCont((prevValue) => ({
-          ...prevValue,
-          valuesBTC: formattedData.valuesBTC,
-          dateBTC: Formatdays(formattedData.dateBTC),
-        }));
-        console.log(valuesCont.dateBTC);
-        setHeight("600");
-        setWidth("1800");
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchData();
-  }, []);
+    //USE EFFECT
+    useEffect(() => {
+        binanceFetchByParameters();
+    }, []);
 
-  function drawAxis() {
+
+  //SHOW VARIABLES / FUNCTIONS
+
+  const drawAxis = () => {
     const canvas = document.getElementById("canvas");
     if (canvas) {
       const ctx = canvas.getContext("2d");
@@ -86,7 +110,7 @@ function App() {
     }
   }
 
-  function drawBTC() {
+  const drawBTC = () => {
     const canvas = document.getElementById("canvas");
     if (canvas) {
       const ctx = canvas.getContext("2d");
@@ -123,24 +147,24 @@ function App() {
           Symbol:
           <input
             type="text"
-            value={symbol}
-            onChange={(e) => setSymbol(e.target.value)}
+            value={inputs.symbol}
+            onChange={handleInputByType("symbol")}
           />
         </label>
         <label>
           Interval:
           <input
             type="text"
-            value={interval}
-            onChange={(e) => setInterval(e.target.value)}
+            value={inputs.interval}
+            onChange={handleInputByType("interval")}
           />
         </label>
         <label>
           Limit:
           <input
             type="number"
-            value={limit}
-            onChange={(e) => setLimit(e.target.value)}
+            value={inputs.limit}
+            onChange={handleInputByType("limit")}
           />
         </label>
         <button type="submit">Fetch Data</button>
