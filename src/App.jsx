@@ -5,56 +5,60 @@ import { FormatHours, formatDays } from "./FormatDates";
 import { transformDataToGraphic } from "./grafico";
 
 function App() {
-    const [valuesCont, setValuesCont] = useState({ valuesBTC: [], dateBTC: [] });
-    const [height, setHeight] = useState("");
-    const [width, setWidth] = useState("");
-    const [inputs, setInputs] = useState({symbol: "BTCARS", interval: "1d", limit: 200});
-    const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
+  const [valuesCont, setValuesCont] = useState({ valuesBTC: [], dateBTC: [] });
+  const [height, setHeight] = useState("");
+  const [width, setWidth] = useState("");
+  const [inputs, setInputs] = useState({
+    symbol: "BTCARS",
+    interval: "1d",
+    limit: 200,
+  });
+  const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
 
-    const saveRawData = (data) => {
-        const formattedData = mostrarData(data);
+  const PUSHTORIGHT = 10;
 
-        // el spread sirve para copiar todas las propiedades del estado anterior (valuesBTC) y luego sobrescribir valuesBTC y date con las nuevas actualizaciones
+  const saveRawData = (data) => {
+    const formattedData = mostrarData(data);
 
-        setValuesCont((prevValue) => ({
-            ...prevValue,
-            valuesBTC: formattedData.valuesBTC,
-            dateBTC: formatDays(formattedData.dateBTC),
-        }));
-    }   
+    // el spread sirve para copiar todas las propiedades del estado anterior (valuesBTC) y luego sobrescribir valuesBTC y date con las nuevas actualizaciones
 
-    const initGraphicsDimensions = () => {
-        setHeight("600");
-        setWidth("1800");
-    }
+    setValuesCont((prevValue) => ({
+      ...prevValue,
+      valuesBTC: formattedData.valuesBTC,
+      dateBTC: formatDays(formattedData.dateBTC),
+    }));
+  };
 
-    const fetchCallback = (parsedRes) => {
-        saveRawData(parsedRes); 
-        initGraphicsDimensions();
-    };
+  const initGraphicsDimensions = () => {
+    setHeight("600");
+    setWidth("1800");
+  };
 
-    const binanceFetchByParameters = () => {
-        binanceFetch(fetchCallback, inputs.symbol, inputs.interval, inputs.limit);
-    }
+  const fetchCallback = (parsedRes) => {
+    saveRawData(parsedRes);
+    initGraphicsDimensions();
+  };
+
+  const binanceFetchByParameters = () => {
+    binanceFetch(fetchCallback, inputs.symbol, inputs.interval, inputs.limit);
+  };
 
   //HANDLES
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        
-        console.log(inputs);
-        binanceFetchByParameters();
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    binanceFetchByParameters();
+  };
 
-    const handleInputByType = (type) => {
-        return ({target}) => {
-            setInputs( inputs => {
-                return {
-                    ... inputs,
-                    [type]: target.value,
-                }
-            })
-      }
+  const handleInputByType = (type) => {
+    return ({ target }) => {
+      setInputs((inputs) => {
+        return {
+          ...inputs,
+          [type]: target.value,
+        };
+      });
     };
+  };
 
   const handleMouseMove = (event) => {
     const rect = event.target.getBoundingClientRect();
@@ -65,8 +69,7 @@ function App() {
     let foundY = null;
 
     for (let i = -1; i < valuesCont.dateBTC.length; i++) {
-      const dataX = (i + 1) * 5;
-      const dataY = valuesCont.valuesBTC[i + 1];
+      const dataX = PUSHTORIGHT + (i + 1) * 5;
 
       const ERROR_ADMITIDO = 3;
       if (Math.abs(x - dataX) < ERROR_ADMITIDO) {
@@ -87,12 +90,10 @@ function App() {
     setMouseCoords({ x: 0, y: 0 });
   };
 
-
-    //USE EFFECT
-    useEffect(() => {
-        binanceFetchByParameters();
-    }, []);
-
+  //USE EFFECT
+  useEffect(() => {
+    binanceFetchByParameters();
+  }, []);
 
   //SHOW VARIABLES / FUNCTIONS
 
@@ -103,12 +104,32 @@ function App() {
       //Ejes x e y
       ctx.beginPath();
       ctx.strokeStyle = "black";
-      ctx.moveTo(0, 0);
-      ctx.lineTo(0, height);
-      ctx.lineTo(width, height);
+      ctx.moveTo(PUSHTORIGHT, 18);
+      ctx.lineTo(PUSHTORIGHT, height - 9);
+      ctx.lineTo(width - 60, height - 9);
       ctx.stroke();
+
+      const divisionesY = 5; // Cantidad de divisiones
+      const espacioY = height / divisionesY;
+      ctx.strokeStyle = "#ccc"; // Color de las líneas de división
+      for (let i = 1; i < divisionesY; i++) {
+        ctx.beginPath();
+        ctx.moveTo(PUSHTORIGHT, i * espacioY);
+        ctx.lineTo(width, i * espacioY);
+        ctx.stroke();
+
+        ctx.font = "12px Arial";
+        ctx.fillStyle = "black";
+        ctx.textAlign = "right";
+        ctx.fillText("ARS", 25, 10);
+
+        ctx.font = "12px Arial";
+        ctx.fillStyle = "black";
+
+        ctx.fillText("> Days", width - 25, height - 5);
+      }
     }
-  }
+  };
 
   const drawBTC = () => {
     const canvas = document.getElementById("canvas");
@@ -116,25 +137,23 @@ function App() {
       const ctx = canvas.getContext("2d");
       for (let i = 0; i < valuesCont.dateBTC.length; i++) {
         ctx.beginPath();
-        // Si el valor actual es mayor que el anterior, dibuja en verde
         if (valuesCont.valuesBTC[i] < valuesCont.valuesBTC[i + 1]) {
           ctx.strokeStyle = "green";
         } else {
-          // Si el valor actual es menor que el anterior, dibuja en rojo
           ctx.strokeStyle = "red";
         }
         ctx.moveTo(
-          i * 5,
+          PUSHTORIGHT + i * 5,
           height - transformDataToGraphic(valuesCont.valuesBTC[i], height)
         );
         ctx.lineTo(
-          (i + 1) * 5,
+          PUSHTORIGHT + (i + 1) * 5,
           height - transformDataToGraphic(valuesCont.valuesBTC[i + 1], height)
         );
         ctx.stroke();
       }
     }
-  }
+  };
   drawAxis();
   drawBTC();
 
@@ -160,6 +179,18 @@ function App() {
           />
         </label>
         <label>
+          Interval:
+          <select
+            value={inputs.interval}
+            onChange={handleInputByType("interval")}
+          >
+            <option value="1h">1h</option>
+            <option value="4h">4h</option>
+            <option value="1d">1d</option>
+            <option value="1w">1w</option>
+          </select>
+        </label>
+        <label>
           Limit:
           <input
             type="number"
@@ -169,7 +200,8 @@ function App() {
         </label>
         <button type="submit">Fetch Data</button>
       </form>
-
+      <br />
+      <br />
       <canvas
         id="canvas"
         width={width}
