@@ -10,7 +10,7 @@ export const formatDays = (array = [], amount) => {
 export const FormatHours = (array = [], amount) => {
   const formattedHours = array.map((_, i) => {
     const date = new Date();
-    date.setHours(date.getHours() - array.length + (1 + i) * amount);
+    date.setHours(date.getHours() - (array.length + (1 + i) * amount));
     return `${date.getDate()}/${date.getMonth() + 1} - ${date.getHours()}:00`;
   });
   return formattedHours;

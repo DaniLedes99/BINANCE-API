@@ -46,6 +46,7 @@ function App() {
   //HANDLES
   const handleSubmit = async (e) => {
     e.preventDefault();
+    clearCanvas();
     binanceFetchByParameters();
   };
 
@@ -69,14 +70,14 @@ function App() {
   const intervalFormatters = {
     h: FormatHours,
     d: formatDays,
-    /*   M: formatMonths,
-    w: formatWeeks, */
   };
 
+  const AMOUNT_OF_DATE = inputs.interval[0];
+  const INTERVAL_KEY = inputs.interval.slice(-1); //devuelve el último valor del input
+
   const formatByTypeOfDate = (array) => {
-    const intervalKey = inputs.interval.slice(-1); //devuelve el último valor del input
-    const formatFunction = intervalFormatters[intervalKey] || formatDays;
-    return formatFunction(array, inputs.interval[0]);
+    const formatFunction = intervalFormatters[INTERVAL_KEY] || formatDays;
+    return formatFunction(array, AMOUNT_OF_DATE);
   };
 
   const handleMouseMove = (event) => {
@@ -108,6 +109,11 @@ function App() {
     setMouseCoords({ x: 0, y: 0 });
   };
 
+  const clearCanvas = () => {
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  };
   //USE EFFECT
   useEffect(() => {
     binanceFetchByParameters();
@@ -172,8 +178,11 @@ function App() {
       }
     }
   };
+  useEffect(() => {
+    drawBTC();
+  }, [valuesCont]);
+
   drawAxis();
-  drawBTC();
 
   return (
     <>
