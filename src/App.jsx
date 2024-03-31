@@ -27,6 +27,7 @@ function App() {
       valuesBTC: formattedData.valuesBTC,
       dateBTC: formatByTypeOfDate(formattedData.dateBTC),
     }));
+    console.log(valuesCont);
   };
 
   const initGraphicsDimensions = () => {
@@ -87,13 +88,13 @@ function App() {
     let foundX = null;
     let foundY = null;
 
-    for (let i = -1; i < valuesCont.dateBTC.length; i++) {
+    for (let i = 0; i < valuesCont.dateBTC.length; i++) {
       const dataX = PUSHTORIGHT + (i + 1) * 5;
 
       const ERROR_ADMITIDO = 3;
       if (Math.abs(x - dataX) < ERROR_ADMITIDO) {
-        foundX = valuesCont.dateBTC[i + 1];
-        foundY = Math.round(valuesCont.valuesBTC[i + 1]);
+        foundX = valuesCont.dateBTC[i];
+        foundY = Math.round(valuesCont.valuesBTC[i]);
         break;
       }
     }
@@ -154,6 +155,8 @@ function App() {
       }
     }
   };
+
+  const SEPARATION = "";
 
   const drawBTC = () => {
     const canvas = document.getElementById("canvas");

@@ -1,13 +1,16 @@
 const endpoint = "https://api.binance.com/api/v3/klines";
 const defaultSymbol = "BTCARS";
 const defaultInterval = "1d";
-const defaultLimit = 200;
+const defaultLimit = 1000;
 
-
-export const binanceFetch = async (callback = (() => {}), symbol = defaultSymbol, interval = defaultInterval, limit = defaultLimit) => {
-
+export const binanceFetch = async (
+  callback = () => {},
+  symbol = defaultSymbol,
+  interval = defaultInterval,
+  limit = defaultLimit
+) => {
   const url = `${endpoint}?symbol=${symbol}&interval=${interval}&limit=${limit}`;
-  
+
   try {
     const response = await fetch(url);
     if (!response.ok) {
