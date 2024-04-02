@@ -7,8 +7,8 @@ import { getHigherValue, getLowerValue } from "./Getters";
 
 function App() {
   const [valuesCont, setValuesCont] = useState({ valuesBTC: [], dateBTC: [] });
-  const [height, setHeight] = useState("");
-  const [width, setWidth] = useState("");
+  const [height, setHeight] = useState("600");
+  const [width, setWidth] = useState("600");
   const [inputs, setInputs] = useState({
     symbol: "BTCARS",
     interval: "1h",
@@ -17,6 +17,11 @@ function App() {
   const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
 
   const PUSHTORIGHT = 10;
+  const MAX = getHigherValue(valuesCont.valuesBTC);
+  const MIN = getLowerValue(valuesCont.valuesBTC);
+  const AMOUNT_OF_DATE = inputs.interval[0];
+  const INTERVAL_KEY = inputs.interval.slice(-1); //devuelve el último valor del input
+  const LENGTH = valuesCont.valuesBTC.length;
 
   const saveRawData = (data) => {
     const formattedData = mostrarData(data);
@@ -28,10 +33,8 @@ function App() {
       valuesBTC: formattedData.valuesBTC,
       dateBTC: formatByTypeOfDate(formattedData.dateBTC),
     }));
-    console.log(valuesCont);
   };
-  const MAX = getHigherValue(valuesCont.valuesBTC);
-  const MIN = getLowerValue(valuesCont.valuesBTC);
+
   const initGraphicsDimensions = () => {
     setHeight("600");
     setWidth(PUSHTORIGHT + (valuesCont.valuesBTC.length + 1) * 5 + 60);
@@ -75,9 +78,6 @@ function App() {
     d: formatDays,
   };
 
-  const AMOUNT_OF_DATE = inputs.interval[0];
-  const INTERVAL_KEY = inputs.interval.slice(-1); //devuelve el último valor del input
-
   const formatByTypeOfDate = (array) => {
     const formatFunction = intervalFormatters[INTERVAL_KEY] || formatDays;
     return formatFunction(array, AMOUNT_OF_DATE);
@@ -120,7 +120,10 @@ function App() {
   //USE EFFECT
   useEffect(() => {
     binanceFetchByParameters();
-  }, []);
+    clearCanvas();
+    drawAxis();
+    drawBTC();
+  }, [valuesCont]);
 
   //SHOW VARIABLES / FUNCTIONS
 
@@ -136,7 +139,7 @@ function App() {
       ctx.lineTo(width - 60, height - 9);
       ctx.stroke();
 
-      const divisionesY = 5; // Cantidad de divisiones
+      const divisionesY = 8; // Cantidad de divisiones
       const espacioY = height / divisionesY;
       ctx.strokeStyle = "#ccc"; // Color de las líneas de división
       for (let i = 1; i < divisionesY; i++) {
@@ -157,10 +160,6 @@ function App() {
       }
     }
   };
-
-  const SEPARATION = "";
-
-  const LENGTH = valuesCont.valuesBTC.length;
 
   const drawBTC = () => {
     const canvas = document.getElementById("canvas");
@@ -199,12 +198,18 @@ function App() {
       }
     }
   };
-  useEffect(() => {
-    drawBTC();
-  }, [valuesCont]);
+  /*   useEffect(
+      () => {
+        clearCanvas();
 
-  drawAxis();
-
+        drawBTC();
+        drawAxis();
+      },
+      [valuesCont],
+      LENGTH,
+      handleInputByType
+    );
+ */
   return (
     <>
       <h1>Cotizaciones Cripto</h1>

@@ -10,9 +10,8 @@ export const transformDataToGraphic = (
     const K = (height - espacio_entre_ejes) / (1 - MIN / MAX);
     const value_hour =
       (valueToTransform / MAX) * K - (MIN / MAX) * K + espacio_entre_ejes;
-    console.log(value_hour);
     return value_hour;
   } else {
-    return 100;
+    return 0;
   }
 };
