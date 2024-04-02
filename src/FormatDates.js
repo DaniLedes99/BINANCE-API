@@ -15,8 +15,3 @@ export const FormatHours = (array = [], amount) => {
   });
   return formattedHours;
 };
-
-/* export const formatByType = (array, type) => {
-  return type === "h" ? FormatHours(array) : formatDays(array);
-};
- */

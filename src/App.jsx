@@ -3,6 +3,7 @@ import "./App.css";
 import { binanceFetch, mostrarData } from "./API";
 import { FormatHours, formatDays } from "./FormatDates";
 import { transformDataToGraphic } from "./grafico";
+import { getHigherValue, getLowerValue } from "./Getters";
 
 function App() {
   const [valuesCont, setValuesCont] = useState({ valuesBTC: [], dateBTC: [] });
@@ -29,10 +30,11 @@ function App() {
     }));
     console.log(valuesCont);
   };
-
+  const MAX = getHigherValue(valuesCont.valuesBTC);
+  const MIN = getLowerValue(valuesCont.valuesBTC);
   const initGraphicsDimensions = () => {
     setHeight("600");
-    setWidth("1800");
+    setWidth(PUSHTORIGHT + (valuesCont.valuesBTC.length + 1) * 5 + 60);
   };
 
   const fetchCallback = (parsedRes) => {
@@ -158,6 +160,8 @@ function App() {
 
   const SEPARATION = "";
 
+  const LENGTH = valuesCont.valuesBTC.length;
+
   const drawBTC = () => {
     const canvas = document.getElementById("canvas");
     if (canvas) {
@@ -171,11 +175,25 @@ function App() {
         }
         ctx.moveTo(
           PUSHTORIGHT + i * 5,
-          height - transformDataToGraphic(valuesCont.valuesBTC[i], height)
+          height -
+            transformDataToGraphic(
+              valuesCont.valuesBTC[i],
+              MAX,
+              MIN,
+              height,
+              LENGTH
+            )
         );
         ctx.lineTo(
           PUSHTORIGHT + (i + 1) * 5,
-          height - transformDataToGraphic(valuesCont.valuesBTC[i + 1], height)
+          height -
+            transformDataToGraphic(
+              valuesCont.valuesBTC[i + 1],
+              MAX,
+              MIN,
+              height,
+              LENGTH
+            )
         );
         ctx.stroke();
       }
@@ -200,7 +218,6 @@ function App() {
             onChange={handleInputByType("symbol")}
           />
         </label>
-
         <label>
           Interval:
           <select
