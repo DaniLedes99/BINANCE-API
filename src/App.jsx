@@ -15,6 +15,7 @@ function App() {
     limit: 200,
   });
   const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
+  const [porcentaje, setPorcentaje] = useState(1);
 
   const PUSHTORIGHT = 10;
   const MAX = getHigherValue(valuesCont.valuesBTC);
@@ -36,8 +37,9 @@ function App() {
   };
 
   const initGraphicsDimensions = () => {
-    setHeight("600");
-    setWidth(PUSHTORIGHT + (valuesCont.valuesBTC.length + 1) * 5 + 60);
+    setPorcentaje(2);
+    setHeight(600 * porcentaje);
+    setWidth(PUSHTORIGHT + (LENGTH + 1) * 5 * porcentaje + 60);
   };
 
   const fetchCallback = (parsedRes) => {
@@ -47,6 +49,9 @@ function App() {
 
   const binanceFetchByParameters = () => {
     binanceFetch(fetchCallback, inputs.symbol, inputs.interval, inputs.limit);
+    clearCanvas();
+    drawAxis();
+    drawBTC();
   };
 
   //HANDLES
@@ -120,9 +125,6 @@ function App() {
   //USE EFFECT
   useEffect(() => {
     binanceFetchByParameters();
-    clearCanvas();
-    drawAxis();
-    drawBTC();
   }, [valuesCont]);
 
   //SHOW VARIABLES / FUNCTIONS
@@ -145,7 +147,7 @@ function App() {
       for (let i = 1; i < divisionesY; i++) {
         ctx.beginPath();
         ctx.moveTo(PUSHTORIGHT, i * espacioY);
-        ctx.lineTo(width, i * espacioY);
+        ctx.lineTo(width - 60, i * espacioY);
         ctx.stroke();
 
         ctx.font = "12px Arial";
@@ -173,7 +175,7 @@ function App() {
           ctx.strokeStyle = "red";
         }
         ctx.moveTo(
-          PUSHTORIGHT + i * 5,
+          PUSHTORIGHT + i * 5 * porcentaje - 60 / LENGTH,
           height -
             transformDataToGraphic(
               valuesCont.valuesBTC[i],
@@ -184,7 +186,7 @@ function App() {
             )
         );
         ctx.lineTo(
-          PUSHTORIGHT + (i + 1) * 5,
+          PUSHTORIGHT + (i + 1) * 5 * porcentaje - 60 / LENGTH,
           height -
             transformDataToGraphic(
               valuesCont.valuesBTC[i + 1],
@@ -198,18 +200,7 @@ function App() {
       }
     }
   };
-  /*   useEffect(
-      () => {
-        clearCanvas();
 
-        drawBTC();
-        drawAxis();
-      },
-      [valuesCont],
-      LENGTH,
-      handleInputByType
-    );
- */
   return (
     <>
       <h1>Cotizaciones Cripto</h1>
