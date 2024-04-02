@@ -1,4 +1,9 @@
-const Graphic = ({}) => {
+import useGraphic from "./useGraphic";
+
+const Graphic = (props = {valuesBTC: [], dateBTC: [], interval: "", canvasId: "canvas", height: "600", width: "600", porcentaje: 1, }) => {
+
+    const graphicHook = useGraphic({...props, hasToDraw: true});
+
   /*
         TODO:
         - Tiene que recibir: 
@@ -14,6 +19,24 @@ const Graphic = ({}) => {
             - Trazar lineas de ejes con sus labels.
             - Que haga el grafico.
     */
+
+
+    return(
+
+        <div>
+            <canvas
+                id={props.canvasId}
+                width={graphicHook.getWidth()}
+                height={graphicHook.getHeight()}
+                onMouseMove={graphicHook.handleMouseMove}
+                onMouseLeave={graphicHook.handleMouseLeave}
+            ></canvas>
+            <p>
+                Coordenadas del mouse: X: {graphicHook.mouseCoords.x}, Y: {graphicHook.mouseCoords.y}
+            </p> 
+        </div>
+
+    )
 };
 
 export default Graphic;

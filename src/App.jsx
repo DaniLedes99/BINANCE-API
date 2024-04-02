@@ -37,7 +37,7 @@ function App() {
   };
 
   const initGraphicsDimensions = () => {
-    setPorcentaje(2);
+    setPorcentaje(1);
     setHeight(600 * porcentaje);
     setWidth(PUSHTORIGHT + (LENGTH + 1) * 5 * porcentaje + 60);
   };

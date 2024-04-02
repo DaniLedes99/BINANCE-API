@@ -15,3 +15,10 @@ export const getLowerValue = (array = []) => {
     return min;
   }
 };
+
+const gettersService = {
+  getHigherValue,
+  getLowerValue,
+}
+
+export default gettersService;
