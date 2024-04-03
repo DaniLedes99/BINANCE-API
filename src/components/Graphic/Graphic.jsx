@@ -25,7 +25,6 @@ const Graphic = ({
     graphicHook.drawBTC();
   }, [valuesBTC, dateBTC, height, width, porcentaje]);
 
-  console.log(graphicHook.getHeight());
   return (
     <div>
       <canvas

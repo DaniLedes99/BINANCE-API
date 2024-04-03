@@ -41,6 +41,12 @@ function App() {
       }));
     };
   };
+  /*   const handleInputByType = (key) => (event) => {
+    setInputs({
+      ...inputs,
+      [key]: event.target.value,
+    });
+  }; */
 
   const intervalFormatters = {
     h: FormatHours,
@@ -85,7 +91,7 @@ function App() {
             onChange={handleInputByType("limit")}
           />
         </label>
-        <button type="submit">Fetching Data</button>
+        <button type="submit">Fetch Data</button>
       </form>
       <br />
       <br />
@@ -95,7 +101,7 @@ function App() {
         interval={inputs.interval}
         canvasId="canvas"
         height="600"
-        porcentaje={2}
+        porcentaje={1}
       />
     </>
   );
