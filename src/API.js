@@ -17,7 +17,6 @@ export const binanceFetch = async (
       throw new Error("Network response was not ok");
     }
     const parsedRes = await response.json();
-
     callback(parsedRes);
     return parsedRes;
   } catch (error) {
@@ -35,4 +34,28 @@ export const mostrarData = (data) => {
     valuesBTC.push(cierre_del_dia);
   }
   return { valuesBTC, dateBTC };
+};
+/* const symbols = data.symbols.map((symbol) => ({
+  symbol: symbol.symbol,
+  name: symbol.baseAsset,
+}));
+return symbols;
+ */
+
+export const binanceFetching = async (callback = () => {}) => {
+  const baseUrl = "https://api.binance.com/api/v3/klines";
+
+  try {
+    const response = await fetch(baseUrl);
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const parsedRes = await response.json();
+    console.log(parsedRes);
+    callback(parsedRes);
+    return parsedRes;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return null; // Return null or handle the error as needed
+  }
 };

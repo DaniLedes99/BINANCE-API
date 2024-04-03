@@ -1,6 +1,6 @@
-import { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
-import { binanceFetch, mostrarData } from "./API";
+import { binanceFetch, mostrarData, binanceFetching } from "./API";
 import { FormatHours, formatDays } from "./FormatDates";
 import Graphic from "./components/Graphic/Graphic";
 
@@ -11,6 +11,23 @@ function App() {
     interval: "1h",
     limit: 200,
   });
+  const [cryptoSymbols, setCryptoSymbols] = useState([]);
+  const [searchText, setSearchText] = useState("");
+  /*   const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const fetchSymbols = async () => {
+      const symbols = await fetchCryptoSymbols();
+      setCryptoSymbols(symbols);
+    };
+
+    fetchSymbols();
+  }, []);
+
+  const filteredCryptoSymbols = cryptoSymbols.filter((crypto) =>
+    crypto.name.toLowerCase().includes(searchText.toLowerCase())
+  ); */
 
   const saveRawData = (data) => {
     const formattedData = mostrarData(data);
@@ -22,6 +39,7 @@ function App() {
 
   const binanceFetchByParameters = () => {
     binanceFetch(fetchCallback, inputs.symbol, inputs.interval, inputs.limit);
+    binanceFetching();
   };
 
   const fetchCallback = (parsedRes) => {
@@ -41,12 +59,35 @@ function App() {
       }));
     };
   };
-  /*   const handleInputByType = (key) => (event) => {
-    setInputs({
+
+  /* const handleCryptoSelect = (cryptoSymbol) => {
+    setInputs((inputs) => ({
       ...inputs,
-      [key]: event.target.value,
-    });
-  }; */
+      symbol: cryptoSymbol,
+    }));
+    setSearchText(cryptoSymbol); // Update the searchText with selected symbol
+    setShowDropdown(false);
+  };
+
+  const handleSearchInputChange = (event) => {
+    setSearchText(event.target.value);
+    setShowDropdown(true);
+  };
+
+
+
+  const handleOutsideClick = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setShowDropdown(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, []); */
 
   const intervalFormatters = {
     h: FormatHours,
@@ -72,6 +113,28 @@ function App() {
             onChange={handleInputByType("symbol")}
           />
         </label>
+        {/* <div className="dropdown-container">
+          <label>
+            Symbol:
+            <input
+              type="text"
+              value={searchText} // Use searchText for both Symbol and Search
+              onChange={handleSearchInputChange}
+            />
+            {showDropdown && (
+              <ul className="dropdown" ref={dropdownRef}>
+                {filteredCryptoSymbols.map((crypto) => (
+                  <li
+                    key={crypto.symbol}
+                    onClick={() => handleCryptoSelect(crypto.symbol)}
+                  >
+                    {crypto.name} ({crypto.symbol})
+                  </li>
+                ))}
+              </ul>
+            )}
+          </label> 
+        </div> */}
         <label>
           Interval:
           <select
