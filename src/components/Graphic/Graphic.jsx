@@ -8,6 +8,7 @@ const Graphic = ({
   canvasId,
   height,
   porcentaje,
+  width,
 }) => {
   const graphicHook = useGraphic({
     valuesBTC,
@@ -16,21 +17,21 @@ const Graphic = ({
     canvasId,
     height,
     porcentaje,
-    hasToDraw: true,
   });
 
   useEffect(() => {
     graphicHook.clearCanvas();
     graphicHook.drawAxis();
     graphicHook.drawBTC();
-  }, [valuesBTC, dateBTC, height, graphicHook.getWidth]); // Usar graphicHook.getWidth
+  }, [valuesBTC, dateBTC, height, width, porcentaje]);
 
+  console.log(graphicHook.getHeight());
   return (
     <div>
       <canvas
         id={canvasId}
-        width={graphicHook.getWidth()} // Usar graphicHook.getWidth
-        height={height}
+        width={graphicHook.getWidth()}
+        height={graphicHook.getHeight()}
         onMouseMove={graphicHook.handleMouseMove}
         onMouseLeave={graphicHook.handleMouseLeave}
       ></canvas>

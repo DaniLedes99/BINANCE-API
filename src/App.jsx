@@ -95,8 +95,7 @@ function App() {
         interval={inputs.interval}
         canvasId="canvas"
         height="600"
-        width="600"
-        porcentaje={1}
+        porcentaje={2}
       />
     </>
   );

@@ -5,10 +5,8 @@ import gettersService from "../../Getters";
 const useGraphic = ({
   valuesBTC = [],
   dateBTC = [],
-  interval = "",
   canvasId = "canvas",
-  porcentaje = 1,
-  hasToDraw = false,
+  porcentaje = 2,
   height,
 }) => {
   const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
@@ -20,11 +18,9 @@ const useGraphic = ({
 
   const getPUSHTORIGHT = () => 10;
 
-  const getHeight = () => height * porcentaje || "600";
+  const getHeight = () => height * porcentaje || 600;
   const getWidth = () =>
-    getPUSHTORIGHT() + (dateBTC.length + 1) * 5 * porcentaje + 60 || "600";
-
-  console.log(getWidth());
+    getPUSHTORIGHT() + (dateBTC.length + 1) * 5 * porcentaje + 60 || 600;
 
   const handleMouseMove = (event) => {
     const rect = event.target.getBoundingClientRect();
@@ -69,7 +65,7 @@ const useGraphic = ({
       ctx.beginPath();
       ctx.strokeStyle = "black";
       ctx.moveTo(getPUSHTORIGHT(), 18);
-      ctx.lineTo(getPUSHTORIGHT(), getHeight() - 9);
+      ctx.lineTo(getPUSHTORIGHT(), getHeight());
       ctx.lineTo(getWidth() - 60, getHeight() - 9);
       ctx.stroke();
 
@@ -139,12 +135,13 @@ const useGraphic = ({
     clearCanvas();
     drawAxis();
     drawBTC();
-  }, [dateBTC, valuesBTC, getWidth]);
+  }, [dateBTC, valuesBTC, getWidth, porcentaje, height]);
 
   return {
     mouseCoords,
     porcentaje,
     height,
+    getHeight,
     getWidth,
     handleMouseMove,
     handleMouseLeave,
