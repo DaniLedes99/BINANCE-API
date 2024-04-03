@@ -1,184 +1,158 @@
 import { useState, useEffect } from "react";
-import gettersService from "../../Getters";
 import { transformDataToGraphic } from "../../grafico";
+import gettersService from "../../Getters";
 
-const useGraphic = (commands = {valuesBTC: [], dateBTC: [], interval: "", canvasId: "canvas", height: "600", width: "600", porcentaje: 1, hasToDraw: false }) => {
+const useGraphic = ({
+  valuesBTC = [],
+  dateBTC = [],
+  interval = "",
+  canvasId = "canvas",
+  porcentaje = 1,
+  hasToDraw = false,
+  height,
+}) => {
+  const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
 
-    //GETTERS
-    const getValuesBTC = () => {
-        return commands.valuesBTC || [];
+  const getValuesBTC = () => valuesBTC || [];
+  const getDateBTC = () => dateBTC || [];
+
+  const getCanvasElement = () => document.getElementById(canvasId);
+
+  const getPUSHTORIGHT = () => 10;
+
+  const getHeight = () => height * porcentaje || "600";
+  const getWidth = () =>
+    getPUSHTORIGHT() + (dateBTC.length + 1) * 5 * porcentaje + 60 || "600";
+
+  console.log(getWidth());
+
+  const handleMouseMove = (event) => {
+    const rect = event.target.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+
+    let foundX = null;
+    let foundY = null;
+
+    for (let i = 0; i < getDateBTC().length; i++) {
+      const dataX = getPUSHTORIGHT() + (i + 1) * 5;
+
+      const ERROR_ADMITIDO = 3;
+      if (Math.abs(x - dataX) < ERROR_ADMITIDO) {
+        foundX = getDateBTC()[i];
+        foundY = Math.round(getValuesBTC()[i]);
+        break;
+      }
     }
 
-    const getDateBTC = () => {
-        return commands.dateBTC | [];
+    if (foundX !== null && foundY !== null) {
+      setMouseCoords({ x: foundX, y: foundY });
+    } else {
+      setMouseCoords({ x: 0, y: 0 });
     }
+  };
 
-    // const getInterval = () => {
-    //     return commands.interval || "";
-    // }
+  const handleMouseLeave = () => {
+    setMouseCoords({ x: 0, y: 0 });
+  };
 
-    const getCanvasId = () => {
-        return commands.canvasId || "canvas";
+  const clearCanvas = () => {
+    const canvas = getCanvasElement();
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  };
+
+  const drawAxis = () => {
+    const canvas = getCanvasElement();
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      // Ejes x e y
+      ctx.beginPath();
+      ctx.strokeStyle = "black";
+      ctx.moveTo(getPUSHTORIGHT(), 18);
+      ctx.lineTo(getPUSHTORIGHT(), getHeight() - 9);
+      ctx.lineTo(getWidth() - 60, getHeight() - 9);
+      ctx.stroke();
+
+      const divisionesY = 8; // Cantidad de divisiones
+      const espacioY = getHeight() / divisionesY;
+      ctx.strokeStyle = "#ccc"; // Color de las líneas de división
+      for (let i = 1; i < divisionesY; i++) {
+        ctx.beginPath();
+        ctx.moveTo(getPUSHTORIGHT(), i * espacioY);
+        ctx.lineTo(getWidth() - 60, i * espacioY);
+        ctx.stroke();
+
+        ctx.font = "12px Arial";
+        ctx.fillStyle = "black";
+        ctx.textAlign = "right";
+        ctx.fillText("ARS", 25, 10);
+
+        ctx.font = "12px Arial";
+        ctx.fillStyle = "black";
+
+        ctx.fillText("> Days", getWidth() - 25, getHeight() - 5);
+      }
     }
+  };
 
-    const getCanvasElement = () => {
-        return document.getElementById(getCanvasId());
-    }
-
-    const getHeight = () => {
-        return commands.height || "600";
-    }
-
-    const getWidth = () => {
-        return commands.width || "600";
-    }
-
-    const getPorcentaje = () => {
-        return commands.porcentaje || 1;
-    }
-
-
-    //STATES
-    const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
-
-    //VARIABLES FOR LOGIC
-    const PUSHTORIGHT = 10;
-    const MAX = gettersService.getHigherValue(getValuesBTC());
-    const MIN = gettersService.getLowerValue(getValuesBTC());
-    // const AMOUNT_OF_DATE = getInterval()[0];
-    // const INTERVAL_KEY = getInterval().slice(-1); //devuelve el último valor del input
-    const LENGTH = getValuesBTC().length;
-
-    const handleMouseMove = (event) => {
-        const rect = event.target.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-    
-        let foundX = null;
-        let foundY = null;
-    
-        for (let i = 0; i < getDateBTC().length; i++) {
-          const dataX = PUSHTORIGHT + (i + 1) * 5;
-    
-          const ERROR_ADMITIDO = 3;
-          if (Math.abs(x - dataX) < ERROR_ADMITIDO) {
-            foundX = getDateBTC()[i];
-            foundY = Math.round(getValuesBTC()[i]);
-            break;
-          }
-        }
-    
-        if (foundX !== null && foundY !== null) {
-          setMouseCoords({ x: foundX, y: foundY });
+  const drawBTC = () => {
+    const canvas = getCanvasElement();
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      for (let i = 0; i < getValuesBTC().length - 1; i++) {
+        ctx.beginPath();
+        if (getValuesBTC()[i] < getValuesBTC()[i + 1]) {
+          ctx.strokeStyle = "green";
         } else {
-          setMouseCoords({ x: 0, y: 0 });
+          ctx.strokeStyle = "red";
         }
-      };
-    
-      const handleMouseLeave = () => {
-        setMouseCoords({ x: 0, y: 0 });
-      };
-    
-      const clearCanvas = () => {
-        const canvas = getCanvasElement();
-        const ctx = canvas.getContext("2d");
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-      };
-
-      const drawAxis = () => {
-        const canvas = getCanvasElement();
-        if (canvas) {
-          const ctx = canvas.getContext("2d");
-          //Ejes x e y
-          ctx.beginPath();
-          ctx.strokeStyle = "black";
-          ctx.moveTo(PUSHTORIGHT, 18);
-          ctx.lineTo(PUSHTORIGHT, getHeight() - 9);
-          ctx.lineTo(getWidth() - 60, getHeight() - 9);
-          ctx.stroke();
-    
-          const divisionesY = 8; // Cantidad de divisiones
-          const espacioY = getHeight() / divisionesY;
-          ctx.strokeStyle = "#ccc"; // Color de las líneas de división
-          for (let i = 1; i < divisionesY; i++) {
-            ctx.beginPath();
-            ctx.moveTo(PUSHTORIGHT, i * espacioY);
-            ctx.lineTo(getWidth() - 60, i * espacioY);
-            ctx.stroke();
-    
-            ctx.font = "12px Arial";
-            ctx.fillStyle = "black";
-            ctx.textAlign = "right";
-            ctx.fillText("ARS", 25, 10);
-    
-            ctx.font = "12px Arial";
-            ctx.fillStyle = "black";
-    
-            ctx.fillText("> Days", getWidth() - 25, getHeight() - 5);
-          }
-        }
-      };
-    
-      const drawBTC = () => {
-        const canvas = getCanvasElement();
-        if (canvas) {
-          const ctx = canvas.getContext("2d");
-          for (let i = 0; i < LENGTH; i++) {
-            ctx.beginPath();
-            if (getValuesBTC()[i] < getValuesBTC()[i + 1]) {
-              ctx.strokeStyle = "green";
-            } else {
-              ctx.strokeStyle = "red";
-            }
-            ctx.moveTo(
-              PUSHTORIGHT + i * 5 * getPorcentaje() - 60 / LENGTH,
-              getHeight() -
-                transformDataToGraphic(
-                  getValuesBTC()[i],
-                  MAX,
-                  MIN,
-                  getHeight(),
-                  LENGTH
-                )
-            );
-            ctx.lineTo(
-              PUSHTORIGHT + (i + 1) * 5 * getPorcentaje() - 60 / LENGTH,
-              getHeight() -
-                transformDataToGraphic(
-                  getValuesBTC()[i + 1],
-                  MAX,
-                  MIN,
-                  getHeight(),
-                  LENGTH
-                )
-            );
-            ctx.stroke();
-          }
-        }
-      };
-
-
-      //USE EFFECT
-      useEffect(() => {
-        clearCanvas();
-        if(commands.hasToDraw) {
-            drawAxis();
-            drawBTC();
-        }
-      }, [commands.dateBTC, commands.valuesBTC])
-
-    return {
-        mouseCoords,
-
-
-        handleMouseMove,
-        handleMouseLeave,
-        clearCanvas,
-        drawAxis,
-        drawBTC,
-        getHeight,
-        getWidth,
+        ctx.moveTo(
+          getPUSHTORIGHT() + i * 5 * porcentaje - 60 / getValuesBTC().length,
+          getHeight() -
+            transformDataToGraphic(
+              getValuesBTC()[i],
+              gettersService.getHigherValue(getValuesBTC()),
+              gettersService.getLowerValue(getValuesBTC()),
+              getHeight(),
+              getValuesBTC().length
+            )
+        );
+        ctx.lineTo(
+          getPUSHTORIGHT() +
+            (i + 1) * 5 * porcentaje -
+            60 / getValuesBTC().length,
+          getHeight() -
+            transformDataToGraphic(
+              getValuesBTC()[i + 1],
+              gettersService.getHigherValue(getValuesBTC()),
+              gettersService.getLowerValue(getValuesBTC()),
+              getHeight(),
+              getValuesBTC().length
+            )
+        );
+        ctx.stroke();
+      }
     }
-}
+  };
 
+  useEffect(() => {
+    clearCanvas();
+    drawAxis();
+    drawBTC();
+  }, [dateBTC, valuesBTC, getWidth]);
+
+  return {
+    mouseCoords,
+    porcentaje,
+    height,
+    getWidth,
+    handleMouseMove,
+    handleMouseLeave,
+    clearCanvas,
+    drawAxis,
+    drawBTC,
+    getPUSHTORIGHT,
+  };
+};
 
 export default useGraphic;
