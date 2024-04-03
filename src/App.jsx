@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
-import { binanceFetch, mostrarData } from "./API";
+import { binanceFetch, mostrarData, fetchCryptoList } from "./API";
 import { FormatHours, formatDays } from "./FormatDates";
 import Graphic from "./components/Graphic/Graphic";
+import Select from "react-select";
 
 function App() {
   const [valuesCont, setValuesCont] = useState({ valuesBTC: [], dateBTC: [] });
@@ -11,6 +12,17 @@ function App() {
     interval: "1h",
     limit: 200,
   });
+  const [cryptoList, setCryptoList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCryptoList()
+      .then((list) => {
+        setCryptoList(list);
+        setLoading(false);
+      })
+      .catch((error) => console.error("Error fetching crypto list:", error));
+  }, []);
 
   const saveRawData = (data) => {
     const formattedData = mostrarData(data);
@@ -41,6 +53,12 @@ function App() {
       }));
     };
   };
+  const handleInputChange = (selectedOption) => {
+    setInputs((inputs) => ({
+      ...inputs,
+      symbol: selectedOption.value,
+    }));
+  };
 
   const intervalFormatters = {
     h: FormatHours,
@@ -60,12 +78,17 @@ function App() {
       <form onSubmit={handleSubmit}>
         <label>
           Symbol:
-          <input
-            type="text"
-            value={inputs.symbol}
-            onChange={handleInputByType("symbol")}
+          <Select
+            options={cryptoList.map((crypto) => ({
+              value: crypto.symbol,
+              label: crypto.name,
+            }))}
+            onChange={handleInputChange}
+            placeholder="Buscar una criptomoneda..."
+            isLoading={loading}
           />
         </label>
+
         <label>
           Interval:
           <select
@@ -95,7 +118,7 @@ function App() {
         interval={inputs.interval}
         canvasId="canvas"
         height="600"
-        porcentaje={2}
+        porcentaje={1}
       />
     </>
   );
