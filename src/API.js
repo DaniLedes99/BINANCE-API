@@ -36,28 +36,3 @@ export const mostrarData = (data) => {
   }
   return { valuesBTC, dateBTC };
 };
-export const fetchCryptoList = async () => {
-  const url = "https://api.binance.com/api/v3/exchangeInfo";
-
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-    const data = await response.json();
-
-    // Solo obtenemos los primeros 100 elementos para este ejemplo
-    const symbols = data.symbols.slice(0, 100);
-
-    // Mapeamos los símbolos y nombres de las criptomonedas
-    const cryptoList = symbols.map((symbol) => ({
-      symbol: symbol.symbol,
-      name: symbol.baseAsset,
-    }));
-
-    return cryptoList;
-  } catch (error) {
-    console.error("Error fetching crypto list:", error);
-    return [];
-  }
-};
