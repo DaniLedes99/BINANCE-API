@@ -8,9 +8,27 @@ export const transformDataToGraphic = (
   if (LENGTH != 0) {
     const espacio_entre_ejes = 20;
     const K = (height - espacio_entre_ejes) / (1 - MIN / MAX);
-    const value_hour =
+    const value =
       (valueToTransform / MAX) * K - (MIN / MAX) * K + espacio_entre_ejes;
-    return value_hour;
+    return value;
+  } else {
+    return 0;
+  }
+};
+
+export const inverseTransformDataToGraphic = (
+  valueToInverseTransform,
+  MAX,
+  MIN,
+  height,
+  LENGTH
+) => {
+  if (LENGTH != 0) {
+    const espacio_entre_ejes = 20;
+    const K = (height - espacio_entre_ejes) / (1 - MIN / MAX);
+    const inverseValue =
+      (valueToInverseTransform - espacio_entre_ejes) * (MAX / K) + MIN;
+    return inverseValue;
   } else {
     return 0;
   }

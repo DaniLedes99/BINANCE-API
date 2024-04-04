@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
-import { transformDataToGraphic } from "../../grafico";
-import gettersService from "../../Getters";
+import {
+  transformDataToGraphic,
+  inverseTransformDataToGraphic,
+} from "../../grafico";
+import gettersService, { getHigherValue, getLowerValue } from "../../Getters";
 
 const useGraphic = ({
   valuesBTC = [],
@@ -32,7 +35,7 @@ const useGraphic = ({
     for (let i = 0; i < getDateBTC().length; i++) {
       const dataX = getPUSHTORIGHT() + (i + 1) * 5;
 
-      const ERROR_ADMITIDO = 3;
+      const ERROR_ADMITIDO = 2.5;
       if (Math.abs(x - dataX) < ERROR_ADMITIDO) {
         foundX = getDateBTC()[i];
         foundY = Math.round(getValuesBTC()[i]);
@@ -51,6 +54,16 @@ const useGraphic = ({
     setMouseCoords({ x: 0, y: 0 });
   };
 
+  console.log(
+    inverseTransformDataToGraphic(
+      75,
+      gettersService.getHigherValue(getValuesBTC()),
+      gettersService.getLowerValue(getValuesBTC()),
+      getHeight(),
+      getValuesBTC().length
+    )
+  );
+
   const clearCanvas = () => {
     const canvas = getCanvasElement();
     const ctx = canvas.getContext("2d");
@@ -65,7 +78,7 @@ const useGraphic = ({
       ctx.beginPath();
       ctx.strokeStyle = "black";
       ctx.moveTo(getPUSHTORIGHT(), 18);
-      ctx.lineTo(getPUSHTORIGHT(), getHeight());
+      ctx.lineTo(getPUSHTORIGHT(), getHeight() - 9);
       ctx.lineTo(getWidth() - 60, getHeight() - 9);
       ctx.stroke();
 
@@ -80,14 +93,30 @@ const useGraphic = ({
 
         ctx.font = "12px Arial";
         ctx.fillStyle = "black";
-        ctx.textAlign = "right";
-        ctx.fillText("ARS", 25, 10);
-
-        ctx.font = "12px Arial";
-        ctx.fillStyle = "black";
-
-        ctx.fillText("> Days", getWidth() - 25, getHeight() - 5);
+        ctx.textAlign = "left";
+        ctx.fillText(
+          inverseTransformDataToGraphic(
+            (divisionesY - i) * espacioY,
+            gettersService.getHigherValue(getValuesBTC()),
+            gettersService.getLowerValue(getValuesBTC()),
+            getHeight(),
+            getValuesBTC().length
+          ),
+          getWidth() - 55,
+          i * espacioY - 5
+        ); // Texto en el lado derecho
       }
+
+      // Agregar texto en los extremos
+      ctx.font = "12px Arial";
+      ctx.fillStyle = "black";
+      ctx.textAlign = "right";
+      ctx.fillText("ARS", 25, 10);
+
+      ctx.font = "12px Arial";
+      ctx.fillStyle = "black";
+
+      ctx.fillText("> Days", getWidth() - 25, getHeight() - 5);
     }
   };
 
