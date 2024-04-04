@@ -102,6 +102,7 @@ function App() {
         canvasId="canvas"
         height="600"
         porcentaje={1}
+        symbol={inputs.symbol}
       />
     </>
   );

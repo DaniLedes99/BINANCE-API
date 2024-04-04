@@ -9,6 +9,7 @@ const Graphic = ({
   height,
   porcentaje,
   width,
+  symbol,
 }) => {
   const graphicHook = useGraphic({
     valuesBTC,
@@ -17,6 +18,7 @@ const Graphic = ({
     canvasId,
     height,
     porcentaje,
+    symbol,
   });
 
   useEffect(() => {

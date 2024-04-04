@@ -28,7 +28,9 @@ export const inverseTransformDataToGraphic = (
     const K = (height - espacio_entre_ejes) / (1 - MIN / MAX);
     const inverseValue =
       (valueToInverseTransform - espacio_entre_ejes) * (MAX / K) + MIN;
-    return inverseValue;
+    const roundedValue = Math.round(inverseValue);
+
+    return roundedValue;
   } else {
     return 0;
   }

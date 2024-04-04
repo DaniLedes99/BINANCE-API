@@ -11,6 +11,8 @@ const useGraphic = ({
   canvasId = "canvas",
   porcentaje = 2,
   height,
+  interval,
+  symbol,
 }) => {
   const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
 
@@ -54,15 +56,14 @@ const useGraphic = ({
     setMouseCoords({ x: 0, y: 0 });
   };
 
-  console.log(
-    inverseTransformDataToGraphic(
-      75,
-      gettersService.getHigherValue(getValuesBTC()),
-      gettersService.getLowerValue(getValuesBTC()),
-      getHeight(),
-      getValuesBTC().length
-    )
-  );
+  const Interval_key = interval.slice(-1);
+
+  const intervalFormatters = {
+    h: "> Hours",
+    d: "> Days",
+  };
+
+  const TEXT_AXIS_X = intervalFormatters[Interval_key];
 
   const clearCanvas = () => {
     const canvas = getCanvasElement();
@@ -71,6 +72,7 @@ const useGraphic = ({
   };
 
   const drawAxis = () => {
+    const TEXT_AXIS_Y = symbol;
     const canvas = getCanvasElement();
     if (canvas) {
       const ctx = canvas.getContext("2d");
@@ -110,13 +112,13 @@ const useGraphic = ({
       // Agregar texto en los extremos
       ctx.font = "12px Arial";
       ctx.fillStyle = "black";
-      ctx.textAlign = "right";
-      ctx.fillText("ARS", 25, 10);
+      ctx.textAlign = "left";
+      ctx.fillText(TEXT_AXIS_Y, 0, 10);
 
       ctx.font = "12px Arial";
       ctx.fillStyle = "black";
 
-      ctx.fillText("> Days", getWidth() - 25, getHeight() - 5);
+      ctx.fillText(TEXT_AXIS_X, getWidth() - 62, getHeight() - 5);
     }
   };
 
@@ -164,7 +166,7 @@ const useGraphic = ({
     clearCanvas();
     drawAxis();
     drawBTC();
-  }, [dateBTC, valuesBTC, getWidth, porcentaje, height]);
+  }, [dateBTC, getWidth, porcentaje, height]);
 
   return {
     mouseCoords,
