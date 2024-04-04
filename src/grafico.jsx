@@ -28,7 +28,7 @@ export const inverseTransformDataToGraphic = (
     const K = (height - espacio_entre_ejes) / (1 - MIN / MAX);
     const inverseValue =
       (valueToInverseTransform - espacio_entre_ejes) * (MAX / K) + MIN;
-    const roundedValue = mostrarDiezDigitos(inverseValue);
+    const roundedValue = redondeoDeValores(inverseValue);
 
     return roundedValue;
   } else {
@@ -36,12 +36,12 @@ export const inverseTransformDataToGraphic = (
   }
 };
 
-const mostrarDiezDigitos = (number) => {
+export const redondeoDeValores = (number) => {
   const numeroString = String(number).trim(); //trim elimina espacios en blanco
   let [parteEntera, parteDecimal] = numeroString.split(".");
 
   if (parteEntera != 0) {
-    if (parteEntera.length > 7) {
+    if (parteEntera.length >= 7) {
       parteEntera = Math.round(Number(parteEntera)).toString();
       parteDecimal = "";
     } else {

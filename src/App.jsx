@@ -97,14 +97,6 @@ function App() {
           </select>
         </label>
         <label>
-          Symbol:
-          <input
-            type="text"
-            value={inputs.symbol}
-            onChange={handleInputByType("symbol")}
-          />
-        </label>
-        <label>
           Interval:
           <select
             value={inputs.interval}

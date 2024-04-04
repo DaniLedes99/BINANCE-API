@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import {
   transformDataToGraphic,
   inverseTransformDataToGraphic,
+  redondeoDeValores,
 } from "../../grafico";
 import gettersService, { getHigherValue, getLowerValue } from "../../Getters";
 
@@ -40,7 +41,7 @@ const useGraphic = ({
       const ERROR_ADMITIDO = 2.5;
       if (Math.abs(x - dataX) < ERROR_ADMITIDO) {
         foundX = getDateBTC()[i];
-        foundY = getValuesBTC()[i];
+        foundY = redondeoDeValores(getValuesBTC()[i]);
         break;
       }
     }
