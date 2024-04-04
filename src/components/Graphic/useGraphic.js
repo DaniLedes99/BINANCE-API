@@ -40,7 +40,7 @@ const useGraphic = ({
       const ERROR_ADMITIDO = 2.5;
       if (Math.abs(x - dataX) < ERROR_ADMITIDO) {
         foundX = getDateBTC()[i];
-        foundY = Math.round(getValuesBTC()[i]);
+        foundY = getValuesBTC()[i];
         break;
       }
     }
@@ -89,8 +89,8 @@ const useGraphic = ({
       ctx.strokeStyle = "#ccc"; // Color de las líneas de división
       for (let i = 1; i < divisionesY; i++) {
         ctx.beginPath();
-        ctx.moveTo(getPUSHTORIGHT(), i * espacioY);
-        ctx.lineTo(getWidth() - 60, i * espacioY);
+        ctx.moveTo(getPUSHTORIGHT(), i * espacioY - 9);
+        ctx.lineTo(getWidth() - 60, i * espacioY - 9);
         ctx.stroke();
 
         ctx.font = "12px Arial";
@@ -106,10 +106,8 @@ const useGraphic = ({
           ),
           getWidth() - 55,
           i * espacioY - 5
-        ); // Texto en el lado derecho
+        );
       }
-
-      // Agregar texto en los extremos
       ctx.font = "12px Arial";
       ctx.fillStyle = "black";
       ctx.textAlign = "left";

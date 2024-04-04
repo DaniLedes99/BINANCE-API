@@ -17,7 +17,6 @@ export const binanceFetch = async (
       throw new Error("Network response was not ok");
     }
     const parsedRes = await response.json();
-
     callback(parsedRes);
     return parsedRes;
   } catch (error) {
@@ -35,4 +34,20 @@ export const mostrarData = (data) => {
     valuesBTC.push(cierre_del_dia);
   }
   return { valuesBTC, dateBTC };
+};
+export const fetchSymbols = async () => {
+  const url = "https://api.binance.com/api/v3/exchangeInfo";
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const data = await response.json();
+    const symbols = data.symbols.map((symbol) => symbol.symbol);
+    return symbols;
+  } catch (error) {
+    console.error("Error fetching symbols:", error);
+    return [];
+  }
 };

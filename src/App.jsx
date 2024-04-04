@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
-import { binanceFetch, mostrarData } from "./API";
+import { binanceFetch, mostrarData, fetchSymbols } from "./API";
 import { FormatHours, formatDays } from "./FormatDates";
 import Graphic from "./components/Graphic/Graphic";
 
@@ -11,8 +11,30 @@ function App() {
     interval: "1h",
     limit: 200,
   });
+  const [symbols, setSymbols] = useState([]);
+  const [selectedSymbol, setSelectedSymbol] = useState("BTCARS"); // Nuevo estado
+
+  useEffect(() => {
+    // Fetch symbols when the component mounts
+    const fetchSymbolsData = async () => {
+      const fetchedSymbols = await fetchSymbols();
+      setSymbols(fetchedSymbols);
+    };
+    fetchSymbolsData();
+  }, []);
+
+  // Rest of the code...
+
+  const handleSymbolChange = (event) => {
+    setSelectedSymbol(event.target.value);
+    setInputs({
+      ...inputs,
+      symbol: event.target.value,
+    });
+  };
 
   const saveRawData = (data) => {
+    console.log(data);
     const formattedData = mostrarData(data);
     setValuesCont({
       valuesBTC: formattedData.valuesBTC,
@@ -66,6 +88,16 @@ function App() {
       <form onSubmit={handleSubmit}>
         <label>
           Symbol:
+          <select value={selectedSymbol} onChange={handleSymbolChange}>
+            {symbols.map((symbol) => (
+              <option key={symbol} value={symbol}>
+                {symbol}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Symbol:
           <input
             type="text"
             value={inputs.symbol}
@@ -103,6 +135,7 @@ function App() {
         height="600"
         porcentaje={1}
         symbol={inputs.symbol}
+        selectedSymbol={selectedSymbol} // Nuevo prop
       />
     </>
   );

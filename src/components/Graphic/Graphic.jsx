@@ -10,6 +10,7 @@ const Graphic = ({
   porcentaje,
   width,
   symbol,
+  selectedSymbol, // Nuevo prop
 }) => {
   const graphicHook = useGraphic({
     valuesBTC,
