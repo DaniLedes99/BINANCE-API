@@ -35,7 +35,7 @@ export const mostrarData = (data) => {
   }
   return { valuesBTC, dateBTC };
 };
-export const fetchSymbols = async () => {
+export const fetchSymbols = async (callback = (() => {})) => {
   const url = "https://api.binance.com/api/v3/exchangeInfo";
 
   try {
@@ -45,6 +45,7 @@ export const fetchSymbols = async () => {
     }
     const data = await response.json();
     const symbols = data.symbols.map((symbol) => symbol.symbol);
+    callback(symbols);
     return symbols;
   } catch (error) {
     console.error("Error fetching symbols:", error);

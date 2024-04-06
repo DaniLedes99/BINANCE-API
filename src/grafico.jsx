@@ -1,3 +1,9 @@
+const MAX_INTEGER_LENGTH = 7;
+
+const getIncrementConstant = (height, espacioEntreEjes, min, max) => {
+  return (height - espacioEntreEjes) / (1 - min / max);
+}
+
 export const transformDataToGraphic = (
   valueToTransform,
   MAX,
@@ -7,7 +13,7 @@ export const transformDataToGraphic = (
 ) => {
   if (LENGTH != 0) {
     const espacio_entre_ejes = 20;
-    const K = (height - espacio_entre_ejes) / (1 - MIN / MAX);
+    const K = getIncrementConstant(height, espacio_entre_ejes, MIN, MAX);
     const value =
       (valueToTransform / MAX) * K - (MIN / MAX) * K + espacio_entre_ejes;
     return value;
@@ -23,25 +29,22 @@ export const inverseTransformDataToGraphic = (
   height,
   LENGTH
 ) => {
-  if (LENGTH != 0) {
-    const espacio_entre_ejes = 20;
-    const K = (height - espacio_entre_ejes) / (1 - MIN / MAX);
-    const inverseValue =
-      (valueToInverseTransform - espacio_entre_ejes) * (MAX / K) + MIN;
-    const roundedValue = redondeoDeValores(inverseValue);
+  if(LENGTH === 0) return 0;
 
-    return roundedValue;
-  } else {
-    return 0;
-  }
+  const espacio_entre_ejes = 20;
+  const K = getIncrementConstant(height, espacio_entre_ejes, MIN, MAX);
+  const inverseValue =
+    (valueToInverseTransform - espacio_entre_ejes) * (MAX / K) + MIN;
+  const roundedValue = redondeoDeValores(inverseValue);
+  return roundedValue;
 };
 
 export const redondeoDeValores = (number) => {
   const numeroString = String(number).trim(); //trim elimina espacios en blanco
   let [parteEntera, parteDecimal] = numeroString.split(".");
 
-  if (parteEntera != 0) {
-    if (parteEntera.length >= 7) {
+  if (parteEntera !== 0) {
+    if (parteEntera.length >= MAX_INTEGER_LENGTH) {
       parteEntera = Math.round(Number(parteEntera)).toString();
       parteDecimal = "";
     } else {
@@ -53,11 +56,11 @@ export const redondeoDeValores = (number) => {
   /*   console.log(parteDecimal);
   console.log(parteEntera); */
 
-  let resultado = parteEntera;
-  if (parteDecimal) {
-    resultado += "," + parteDecimal;
-  }
+  // let resultado = parteEntera;
+  // if (parteDecimal) {
+  //   resultado += "," + parteDecimal;
+  // }
   /*   console.log(resultado); */
 
-  return resultado;
+  return `${parteEntera}${parteDecimal ? `,${parteDecimal}` : ""}`;
 };

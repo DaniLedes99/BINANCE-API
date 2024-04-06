@@ -16,11 +16,11 @@ function App() {
 
   useEffect(() => {
     // Fetch symbols when the component mounts
-    const fetchSymbolsData = async () => {
-      const fetchedSymbols = await fetchSymbols();
+    const callback = (fetchedSymbols) => {
       setSymbols(fetchedSymbols);
-    };
-    fetchSymbolsData();
+    }
+    
+    fetchSymbols(callback);
   }, []);
 
   // Rest of the code...
