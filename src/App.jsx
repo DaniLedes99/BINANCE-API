@@ -1,74 +1,66 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import { binanceFetch, mostrarData } from "./API";
+import { binanceFetch, mostrarData, fetchSymbols } from "./API";
 import { FormatHours, formatDays } from "./FormatDates";
-import { transformDataToGraphic } from "./grafico";
-import { getHigherValue, getLowerValue } from "./Getters";
+import Graphic from "./components/Graphic/Graphic";
 
 function App() {
   const [valuesCont, setValuesCont] = useState({ valuesBTC: [], dateBTC: [] });
-  const [height, setHeight] = useState("600");
-  const [width, setWidth] = useState("600");
   const [inputs, setInputs] = useState({
     symbol: "BTCARS",
     interval: "1h",
     limit: 200,
   });
-  const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
-  const [porcentaje, setPorcentaje] = useState(1);
+  const [symbols, setSymbols] = useState([]);
+  const [selectedSymbol, setSelectedSymbol] = useState("BTCARS"); // Nuevo estado
 
-  const PUSHTORIGHT = 10;
-  const MAX = getHigherValue(valuesCont.valuesBTC);
-  const MIN = getLowerValue(valuesCont.valuesBTC);
-  const AMOUNT_OF_DATE = inputs.interval[0];
-  const INTERVAL_KEY = inputs.interval.slice(-1); //devuelve el último valor del input
-  const LENGTH = valuesCont.valuesBTC.length;
+  useEffect(() => {
+    // Fetch symbols when the component mounts
+    const callback = (fetchedSymbols) => {
+      setSymbols(fetchedSymbols);
+    }
+    
+    fetchSymbols(callback);
+  }, []);
+
+  // Rest of the code...
+
+  const handleSymbolChange = (event) => {
+    setSelectedSymbol(event.target.value);
+    setInputs({
+      ...inputs,
+      symbol: event.target.value,
+    });
+  };
 
   const saveRawData = (data) => {
+    console.log(data);
     const formattedData = mostrarData(data);
-
-    // el spread sirve para copiar todas las propiedades del estado anterior (valuesBTC) y luego sobrescribir valuesBTC y date con las nuevas actualizaciones
-
-    setValuesCont((prevValue) => ({
-      ...prevValue,
+    setValuesCont({
       valuesBTC: formattedData.valuesBTC,
       dateBTC: formatByTypeOfDate(formattedData.dateBTC),
-    }));
-  };
-
-  const initGraphicsDimensions = () => {
-    setPorcentaje(2);
-    setHeight(600 * porcentaje);
-    setWidth(PUSHTORIGHT + (LENGTH + 1) * 5 * porcentaje + 60);
-  };
-
-  const fetchCallback = (parsedRes) => {
-    saveRawData(parsedRes);
-    initGraphicsDimensions();
+    });
   };
 
   const binanceFetchByParameters = () => {
     binanceFetch(fetchCallback, inputs.symbol, inputs.interval, inputs.limit);
-    clearCanvas();
-    drawAxis();
-    drawBTC();
   };
 
-  //HANDLES
+  const fetchCallback = (parsedRes) => {
+    saveRawData(parsedRes);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    clearCanvas();
     binanceFetchByParameters();
   };
 
   const handleInputByType = (type) => {
     return ({ target }) => {
-      setInputs((inputs) => {
-        return {
-          ...inputs,
-          [type]: target.value,
-        };
-      });
+      setInputs((inputs) => ({
+        ...inputs,
+        [type]: target.value,
+      }));
     };
   };
   /*   const handleInputByType = (key) => (event) => {
@@ -84,121 +76,9 @@ function App() {
   };
 
   const formatByTypeOfDate = (array) => {
-    const formatFunction = intervalFormatters[INTERVAL_KEY] || formatDays;
-    return formatFunction(array, AMOUNT_OF_DATE);
-  };
-
-  const handleMouseMove = (event) => {
-    const rect = event.target.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-
-    let foundX = null;
-    let foundY = null;
-
-    for (let i = 0; i < valuesCont.dateBTC.length; i++) {
-      const dataX = PUSHTORIGHT + (i + 1) * 5;
-
-      const ERROR_ADMITIDO = 3;
-      if (Math.abs(x - dataX) < ERROR_ADMITIDO) {
-        foundX = valuesCont.dateBTC[i];
-        foundY = Math.round(valuesCont.valuesBTC[i]);
-        break;
-      }
-    }
-
-    if (foundX !== null && foundY !== null) {
-      setMouseCoords({ x: foundX, y: foundY });
-    } else {
-      setMouseCoords({ x: 0, y: 0 });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    setMouseCoords({ x: 0, y: 0 });
-  };
-
-  const clearCanvas = () => {
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  };
-  //USE EFFECT
-  useEffect(() => {
-    binanceFetchByParameters();
-  }, [valuesCont]);
-
-  //SHOW VARIABLES / FUNCTIONS
-
-  const drawAxis = () => {
-    const canvas = document.getElementById("canvas");
-    if (canvas) {
-      const ctx = canvas.getContext("2d");
-      //Ejes x e y
-      ctx.beginPath();
-      ctx.strokeStyle = "black";
-      ctx.moveTo(PUSHTORIGHT, 18);
-      ctx.lineTo(PUSHTORIGHT, height - 9);
-      ctx.lineTo(width - 60, height - 9);
-      ctx.stroke();
-
-      const divisionesY = 8; // Cantidad de divisiones
-      const espacioY = height / divisionesY;
-      ctx.strokeStyle = "#ccc"; // Color de las líneas de división
-      for (let i = 1; i < divisionesY; i++) {
-        ctx.beginPath();
-        ctx.moveTo(PUSHTORIGHT, i * espacioY);
-        ctx.lineTo(width - 60, i * espacioY);
-        ctx.stroke();
-
-        ctx.font = "12px Arial";
-        ctx.fillStyle = "black";
-        ctx.textAlign = "right";
-        ctx.fillText("ARS", 25, 10);
-
-        ctx.font = "12px Arial";
-        ctx.fillStyle = "black";
-
-        ctx.fillText("> Days", width - 25, height - 5);
-      }
-    }
-  };
-
-  const drawBTC = () => {
-    const canvas = document.getElementById("canvas");
-    if (canvas) {
-      const ctx = canvas.getContext("2d");
-      for (let i = 0; i < valuesCont.dateBTC.length; i++) {
-        ctx.beginPath();
-        if (valuesCont.valuesBTC[i] < valuesCont.valuesBTC[i + 1]) {
-          ctx.strokeStyle = "green";
-        } else {
-          ctx.strokeStyle = "red";
-        }
-        ctx.moveTo(
-          PUSHTORIGHT + i * 5 * porcentaje - 60 / LENGTH,
-          height -
-            transformDataToGraphic(
-              valuesCont.valuesBTC[i],
-              MAX,
-              MIN,
-              height,
-              LENGTH
-            )
-        );
-        ctx.lineTo(
-          PUSHTORIGHT + (i + 1) * 5 * porcentaje - 60 / LENGTH,
-          height -
-            transformDataToGraphic(
-              valuesCont.valuesBTC[i + 1],
-              MAX,
-              MIN,
-              height,
-              LENGTH
-            )
-        );
-        ctx.stroke();
-      }
-    }
+    const formatFunction =
+      intervalFormatters[inputs.interval.slice(-1)] || formatDays;
+    return formatFunction(array, inputs.interval[0]);
   };
 
   return (
@@ -208,11 +88,13 @@ function App() {
       <form onSubmit={handleSubmit}>
         <label>
           Symbol:
-          <input
-            type="text"
-            value={inputs.symbol}
-            onChange={handleInputByType("symbol")}
-          />
+          <select value={selectedSymbol} onChange={handleSymbolChange}>
+            {symbols.map((symbol) => (
+              <option key={symbol} value={symbol}>
+                {symbol}
+              </option>
+            ))}
+          </select>
         </label>
         <label>
           Interval:
@@ -237,16 +119,16 @@ function App() {
       </form>
       <br />
       <br />
-      <canvas
-        id="canvas"
-        width={width}
-        height={height}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-      ></canvas>
-      <p>
-        Coordenadas del mouse: X: {mouseCoords.x}, Y: {mouseCoords.y}
-      </p>
+      <Graphic
+        valuesBTC={valuesCont.valuesBTC}
+        dateBTC={valuesCont.dateBTC}
+        interval={inputs.interval}
+        canvasId="canvas"
+        height="600"
+        porcentaje={1}
+        symbol={inputs.symbol}
+        selectedSymbol={selectedSymbol} // Nuevo prop
+      />
     </>
   );
 }
